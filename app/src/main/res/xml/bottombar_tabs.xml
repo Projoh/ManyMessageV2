@@ -1,0 +1,13 @@
+<tabs>
+    <tab
+        id="@+id/tab_contacts"
+        icon="@drawable/ic_contacts"
+        title="Recipients"
+        barColorWhenSelected="#6A5ACD"
+        />
+    <tab
+        id="@+id/tab_compose"
+        icon="@drawable/ic_message"
+        title="Compose"
+        barColorWhenSelected="#303F9F"/>
+</tabs>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="android.mayassin.com.manymessagev2.MainActivity">
+
+
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="0dp"
+        app:title="ManyMessage"
+        android:backgroundTint="@color/White"
+        android:gravity="start"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:background="@color/White"
+        android:layout_marginTop="56dp"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.roughike.bottombar.BottomBar
+        android:id="@+id/bottomBar"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:bb_inActiveTabColor="@color/LightGrey"
+        android:layout_alignParentBottom="true"
+        app:bb_tabXmlResource="@xml/bottombar_tabs" />
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/menu_add_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="60dp"
+        fab:menu_colorNormal="@color/Gray"
+        fab:menu_colorPressed="#2272CD"
+        fab:menu_colorRipple="#62B2FF"
+        android:layout_marginRight="16dp">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_recp_saved"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_cached"
+            style="@style/FABButtonMini"
+            fab:fab_label="Saved"
+            app:fabSize="mini"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_recp_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_contacts_white"
+            style="@style/FABButtonMini"
+            fab:fab_label="Contacts"
+            app:fabSize="mini"/>
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab_delete_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="78dp"
+        android:layout_marginBottom="60dp"
+        android:src="@drawable/ic_delete"
+        app:fab_colorNormal="@color/Gray"
+        app:fab_colorPressed="#E75043"
+        app:fab_colorRipple="#99FFFFFF"
+        android:layout_marginRight="16dp" />
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/fab_selectall_contacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="140dp"
+        android:layout_marginBottom="60dp"
+        android:src="@drawable/ic_select_all"
+        app:fab_colorNormal="@color/Gray"
+        app:fab_colorPressed="@color/colorPrimaryDark"
+        app:fab_colorRipple="#99FFFFFF"
+        android:layout_marginRight="16dp" />
+
+</android.support.design.widget.CoordinatorLayout>
