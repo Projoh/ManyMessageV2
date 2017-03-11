@@ -1,6 +1,8 @@
 package android.mayassin.com.manymessagev2;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,11 +13,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -25,18 +33,25 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements RecipientsInterface {
 
+    private static final String UPDATE_CONTACTS_REQUEST = "updateContacts";
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 21;
     private static final int REQUEST_FOR_CONTACTS_FROM_CONTACT_BOOK = 1;
+    private static final String REMOVE_CONTACTS_REQUEST = "removeSelectedContacts";
+    private static final String SELECT_ALL_CONTACTS = "selectAllContacts";
+    private static final String FILTER_CONTACTS = "filterContacts";
     private ViewPager viewPager;
     private BottomBar bottomBar;
     private RecyclerView recyleView;
     private RecycleViewAdapter adapter;
+    private Menu menu;
     private FloatingActionMenu addContactsMenuButton;
     private com.github.clans.fab.FloatingActionButton deleteContactsButton,selectAllContactsButton,
-            selectFromContactsButton,selectFromSavedContactsButton;
+            selectFromContactsButton,selectFromSavedContactsButton,saveCurrentContactsButton;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
 
 
@@ -67,15 +82,43 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
             if(resultCode == RESULT_OK) {
                 // GSON to objects, Populate the recylerview
                 Gson gson = new Gson();
-
-                allContacts = gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts;
+                if(allContacts.isEmpty())
+                    allContacts.addAll(gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts);
+                else {
+                    ArrayList<Contact> newContactsToAdd = new ArrayList<>();
+                    newContactsToAdd = gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts;
+                    for(Contact newContact: newContactsToAdd) {
+                        boolean add = true;
+                        for(Contact currentcontact : allContacts) {
+                            if(currentcontact.firstName.equals(newContact.firstName) &&
+                                    currentcontact.lastName.equals(newContact.lastName) &&
+                                    currentcontact.phoneNumber.equals(newContact.phoneNumber)) {
+                                add = false;
+                                break;
+                            }
+                        }
+                        if(add) allContacts.add(newContact);
+                    }
+                }
                 sendToRecipeintsFragment();
             }
         }
     }
 
-    private void sendToRecipeintsFragment() {
 
+
+    private void removeDuplicates() {
+        Set<Contact> hashSet = new HashSet<>();
+        hashSet.addAll(allContacts);
+        allContacts.clear();
+        allContacts.addAll(hashSet);
+    }
+
+    private void sendToRecipeintsFragment() {
+        Intent i = new Intent(UPDATE_CONTACTS_REQUEST);
+        i.putExtra("success", true);
+        LocalBroadcastManager.getInstance(MainActivity.this)
+                .sendBroadcast(i);
     }
 
     @Override
@@ -105,6 +148,34 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        this.menu = menu;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Intent i = new Intent(FILTER_CONTACTS);
+                i.putExtra("success", true);
+                i.putExtra("filter_text", newText);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+                return false;
+            }
+        });
+        return true;
+    }
+
+
     private void intialize() {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -112,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         intializeViewPager();
         intializeBottomBar();
         initializeFabListeners();
+
     }
 
     private void initializeFabListeners() {
@@ -123,6 +195,24 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 addContactsMenuButton.close(true);
             }
         });
+        deleteContactsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(REMOVE_CONTACTS_REQUEST);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
+        selectAllContactsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(SELECT_ALL_CONTACTS);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
     }
 
     private void intializeFABs() {
@@ -131,8 +221,10 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         selectAllContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_selectall_contacts);
         selectFromContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_recp_contacts);
         selectFromSavedContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_recp_saved);
+        saveCurrentContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_save_contacts);
         deleteContactsButton.hide(false);
         selectAllContactsButton.hide(false);
+        saveCurrentContactsButton.hide(false);
     }
 
     private void intializeViewPager() {
@@ -150,10 +242,15 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 if(position == 0) {
                     bottomBar.selectTabAtPosition(0);
                     getSupportActionBar().setTitle("Message Recipients");
+                    MenuItem searchItem = menu.findItem(R.id.search);
+                    searchItem.setVisible(true);
                 } else {
                     bottomBar.selectTabAtPosition(1);
 //                    hideFABs();
                     getSupportActionBar().setTitle("Compose Message");
+                    MenuItem searchItem = menu.findItem(R.id.search);
+                    searchItem.collapseActionView();
+                    searchItem.setVisible(false);
                 }
             }
             @Override
@@ -166,8 +263,18 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private void toggleFAB(int position) {
         if(position == 0) {
             addContactsMenuButton.showMenu(true);
+            checkFABsAndShow();
         } else {
             addContactsMenuButton.hideMenu(true);
+            hideFABs();
+        }
+    }
+
+    private void checkFABsAndShow() {
+        if(!allContacts.isEmpty()) {
+            showFABs();
+        } else {
+            hideFABs();
         }
     }
 
@@ -190,11 +297,13 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     public void showFABs() {
         deleteContactsButton.show(true);
         selectAllContactsButton.show(true);
+        saveCurrentContactsButton.show(true);
     }
 
     @Override
     public void hideFABs() {
         deleteContactsButton.hide(true);
+        saveCurrentContactsButton.hide(true);
         selectAllContactsButton.hide(true);
     }
 

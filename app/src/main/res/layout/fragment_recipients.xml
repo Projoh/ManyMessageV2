@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
+        android:text="Contacts"/>
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Contacts"/>
+        android:layout_marginBottom="55dp">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyler_view_recipients"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
+            android:id="@+id/fast_scroller"
+            android:layout_width="16dp"
+            android:paddingEnd="8dp"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            app:theme="@style/AlertDialog.AppCompat.Light"
+            android:layout_height="match_parent"
+            android:paddingRight="8dp" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyler_view_recipients"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    </FrameLayout>
 
-    </android.support.v7.widget.RecyclerView>
+
 
 </LinearLayout>

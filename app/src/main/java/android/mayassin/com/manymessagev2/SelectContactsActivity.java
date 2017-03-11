@@ -29,6 +29,9 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
@@ -92,6 +95,7 @@ public class SelectContactsActivity extends AppCompatActivity {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                 // GSON then send to intent
+                                for(Contact sendingContact:  sendingContacts) sendingContact.setSelected(false);
                                 Gson gson = new Gson();
                                 GroupOfContacts groupOfContacts = new GroupOfContacts();
                                 groupOfContacts.contacts = sendingContacts;
@@ -153,11 +157,20 @@ public class SelectContactsActivity extends AppCompatActivity {
     private void pullAllContacts() {
         try {
             Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
-         while (phones.moveToNext()) {
+            while (phones.moveToNext()) {
                 String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 Contact contact = new Contact(name, phoneNumber);
-                allContacts.add(contact);
+                boolean add = true;
+                for(Contact contacttest : allContacts) {
+                    if(contact.firstName.equals(contacttest.firstName) &&
+                            contact.lastName.equals(contacttest.lastName) &&
+                            contact.phoneNumber.equals(contacttest.phoneNumber)) {
+                        add = false;
+                        break;
+                    }
+                }
+                if(add) allContacts.add(contact);
             }
             phones.close();
             setUpRecyleViewer();
