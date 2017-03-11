@@ -153,8 +153,8 @@ public class ComposeFragment extends Fragment {
 
     private void resetComposeData() {
         setMessageText(initialText);
-        setVariableOneText("Custom Text for the word variable1 in the Message Text.");
-        setVariableTwoText("Custom Text for the word variable2 in the Message Text.");
+        setVariableOneText("Major Sports Academy");
+        setVariableTwoText("University of Popular Football team");
     }
 
     private void intializeRecievers() {

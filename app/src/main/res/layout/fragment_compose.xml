@@ -25,11 +25,12 @@
                 android:layout_height="0dp"
                 android:orientation="vertical"
                 android:id="@+id/message_layout"
-                android:layout_weight="0.45">
+                android:layout_weight="0.35">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:text="MESSAGE"
+                    android:textStyle="bold"
                     android:textColor="@color/Black"
                     android:textSize="16sp"
                     android:layout_height="32dp" />
@@ -48,11 +49,12 @@
                 android:id="@+id/customize_layout"
                 android:layout_height="0dp"
                 android:orientation="vertical"
-                android:layout_weight="0.45">
+                android:layout_weight="0.6">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:text="CUSTOMIZATION"
+                    android:textStyle="bold"
                     android:textColor="@color/Black"
                     android:textSize="16sp"
                     android:layout_height="32dp" />
@@ -63,28 +65,28 @@
                     android:layout_height="wrap_content">
                     <TextView
                         android:layout_width="wrap_content"
-                        android:text="Variable1"
+                        android:text="Variable1:"
                         android:layout_height="match_parent" />
 
                     <TextView
                         android:id="@+id/custom_text_one"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:textColor="@color/LightGrey"
                         android:paddingBottom="16dp"
-                        android:text="Custom Text for the word Variable1 in the Message Text." />
+                        android:text="Major Sports Academy"
+                        android:textColor="@color/DarkGray" />
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:text="Variable2"
+                        android:text="Variable2:"
                         android:layout_height="match_parent" />
 
                     <TextView
                         android:id="@+id/custom_text_two"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:textColor="@color/LightGrey"
-                        android:text="Custom Text for the word Variable2 in the Message Text." />
+                        android:textColor="@color/DarkGray"
+                        android:text="University of Popular Football team" />
 
                 </LinearLayout>
 

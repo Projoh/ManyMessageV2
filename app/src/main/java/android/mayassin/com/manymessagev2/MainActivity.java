@@ -38,6 +38,7 @@ import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements RecipientsInterface, ComposeInterface{
@@ -524,8 +525,12 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     }
 
     @Override
-    public void sendDataFromCompose(CustomMessage customMessage) {
+    public void sendDataFromCompose(final CustomMessage customMessage) {
         this.customMessage = customMessage;
+        if(allContacts.isEmpty()) {
+            showSnackBar(this, "No contacts selected!");
+            return;
+        }
         new MaterialDialog.Builder(this)
                 .title("Are you sure you wish to send this message to " + allContacts.size() + " contacts?")
                 .content("This action cannot be undone.")
@@ -534,7 +539,24 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        checkPermissionAndSendText();
+                        Random random = new Random();
+                        Contact randomContact = allContacts.get((int)(Math.random()*allContacts.size()));
+                        String previewMessage = customMessage.getMessage().replaceAll("fname", randomContact.firstName)
+                                .replaceAll("lname", randomContact.lastName)
+                                .replaceAll("variable1", customMessage.getVariableOne())
+                                .replaceAll("variable2", customMessage.getVaribaleTwo());
+                        new MaterialDialog.Builder(MainActivity.this)
+                                .title("Message Preview:")
+                                .content(previewMessage)
+                                .positiveText("OKAY")
+                                .negativeText("NEVERMIND")
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        checkPermissionAndSendText();
+                                    }
+                                })
+                                .show();
                     }
                 })
                 .show();
