@@ -1,6 +1,7 @@
 package android.mayassin.com.manymessagev2;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,11 +21,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -36,15 +40,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements RecipientsInterface {
+public class MainActivity extends AppCompatActivity implements RecipientsInterface, ComposeInterface{
 
     private static final String UPDATE_CONTACTS_REQUEST = "updateContacts";
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 21;
+    private static final int MY_PERMISSIONS_SEND_SMS = 22;
     private static final int REQUEST_FOR_CONTACTS_FROM_CONTACT_BOOK = 1;
     private static final String REMOVE_CONTACTS_REQUEST = "removeSelectedContacts";
     private static final String SELECT_ALL_CONTACTS = "selectAllContacts";
     private static final String FILTER_CONTACTS = "filterContacts";
+
+    private static final String SEND_MESSAGE = "sendMessage";
+    private static final String DELETE_MESSAGE = "deleteMessage";
+    private static final String CACHED_MESSAGE = "cachedMessage";
+    private static final String SAVE_MESSAGE = "saveMessage";
+
     private ViewPager viewPager;
+    private View parentView;
     private BottomBar bottomBar;
     private RecyclerView recyleView;
     private SessionManager sessionManager;
@@ -52,8 +64,10 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private Menu menu;
     private FloatingActionMenu addContactsMenuButton;
     private com.github.clans.fab.FloatingActionButton deleteContactsButton,selectAllContactsButton,
-            selectFromContactsButton,selectFromSavedContactsButton,saveCurrentContactsButton;
+            selectFromContactsButton,selectFromSavedContactsButton,saveCurrentContactsButton,
+            composeSendButton,composeDeleteButton,composeSaveButton,composeCachedButton;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
+    private CustomMessage customMessage = new CustomMessage();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +87,11 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         ActivityCompat.requestPermissions(MainActivity.this,
                 new String[]{Manifest.permission.READ_CONTACTS},
                 MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+    }
+    private void requestSENDSMSPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.SEND_SMS},
+                MY_PERMISSIONS_SEND_SMS);
     }
 
     @Override
@@ -108,13 +127,6 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     }
 
 
-    private void removeDuplicates() {
-        Set<Contact> hashSet = new HashSet<>();
-        hashSet.addAll(allContacts);
-        allContacts.clear();
-        allContacts.addAll(hashSet);
-    }
-
     private void updateContactsRecylerView() {
         Intent i = new Intent(UPDATE_CONTACTS_REQUEST);
         i.putExtra("success", true);
@@ -140,6 +152,28 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                 requestContactReadPermission();
+                            }
+                        })
+                        .show();
+                // permission denied, boo! Disable the
+                // functionality that depends on this permission.
+            }
+        }
+        if(requestCode == MY_PERMISSIONS_SEND_SMS) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                sendTextMessage();
+            } else {
+                MaterialDialog dialog = new MaterialDialog.Builder(this)
+                        .title("Permission Denied")
+                        .positiveColor(getResources().getColor(R.color.colorPrimary))
+                        .content("This app cannot send text messages without the SMS permission. Please grant it when prompted")
+                        .positiveText("OKAY")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                requestSENDSMSPermission();
                             }
                         })
                         .show();
@@ -185,17 +219,57 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         intializeFABs();
         intializeViewPager();
         intializeBottomBar();
-        setFABClickListeners();
+        setRecipFABClickListeners();
+        setComposeFABClickListeners();
 
     }
 
-    private void setFABClickListeners() {
+    private void setComposeFABClickListeners() {
+        composeCachedButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(CACHED_MESSAGE);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
+        composeSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(SAVE_MESSAGE);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
+        composeSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(SEND_MESSAGE);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
+        composeDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(DELETE_MESSAGE);
+                i.putExtra("success", true);
+                LocalBroadcastManager.getInstance(MainActivity.this)
+                        .sendBroadcast(i);
+            }
+        });
+    }
+
+    private void setRecipFABClickListeners() {
         selectFromContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addContactsMenuButton.close(true);
                 Intent i = new Intent(MainActivity.this, SelectContactsActivity.class);
                 startActivityForResult(i, REQUEST_FOR_CONTACTS_FROM_CONTACT_BOOK);
-                addContactsMenuButton.close(true);
             }
         });
         deleteContactsButton.setOnClickListener(new View.OnClickListener() {
@@ -260,9 +334,12 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         selectFromSavedContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addContactsMenuButton.close(true);
                 final String[] allGroups = sessionManager.getAllGroups();
                 if(allGroups.length == 0 || allGroups[0].isEmpty()) {
                     // Snackbar saying no saved groups, explain how to save
+                    showSnackBar(MainActivity.this, "You have no saved groups! Create a group and save it using the save button.");
+
                     return;
                 }
                 new MaterialDialog.Builder(MainActivity.this)
@@ -329,9 +406,17 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         selectFromContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_recp_contacts);
         selectFromSavedContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_recp_saved);
         saveCurrentContactsButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_save_contacts);
+        composeDeleteButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_delete_message);
+        composeSendButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_send_message);
+        composeSaveButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_save_message);
+        composeCachedButton = (com.github.clans.fab.FloatingActionButton) findViewById(R.id.fab_cached_message);
         deleteContactsButton.hide(false);
         selectAllContactsButton.hide(false);
         saveCurrentContactsButton.hide(false);
+        composeSaveButton.hide(false);
+        composeDeleteButton.hide(false);
+        composeSendButton.hide(false);
+        composeCachedButton.hide(false);
     }
 
     private void intializeViewPager() {
@@ -351,6 +436,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                     getSupportActionBar().setTitle("Message Recipients");
                     MenuItem searchItem = menu.findItem(R.id.search);
                     searchItem.setVisible(true);
+                    hideComposeFAB();
                 } else {
                     bottomBar.selectTabAtPosition(1);
 //                    hideFABs();
@@ -358,6 +444,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                     MenuItem searchItem = menu.findItem(R.id.search);
                     searchItem.collapseActionView();
                     searchItem.setVisible(false);
+                    showComposeFAB();
                 }
             }
             @Override
@@ -372,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
             addContactsMenuButton.showMenu(true);
             checkFABsAndShow();
         } else {
-            addContactsMenuButton.hideMenu(true);
+            addContactsMenuButton.hideMenu(false);
             hideFABs();
         }
     }
@@ -418,6 +505,69 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     @Override
     public ArrayList<Contact> getSelectedContacts() {
         return allContacts;
+    }
+
+    @Override
+    public void showComposeFAB() {
+        composeDeleteButton.show(true);
+        composeSaveButton.show(true);
+        composeSendButton.show(true);
+        composeCachedButton.show(true);
+    }
+
+    @Override
+    public void hideComposeFAB() {
+        composeSaveButton.hide(false);
+        composeDeleteButton.hide(false);
+        composeSendButton.hide(false);
+        composeCachedButton.hide(false);
+    }
+
+    @Override
+    public void sendDataFromCompose(CustomMessage customMessage) {
+        this.customMessage = customMessage;
+        new MaterialDialog.Builder(this)
+                .title("Are you sure you wish to send this message to " + allContacts.size() + " contacts?")
+                .content("This action cannot be undone.")
+                .positiveText("YES")
+                .negativeText("NEVERMIND")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        checkPermissionAndSendText();
+                    }
+                })
+                .show();
+    }
+
+    private void checkPermissionAndSendText() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.SEND_SMS)
+                == PackageManager.PERMISSION_GRANTED) {
+            sendTextMessage();
+        } else {
+            requestSENDSMSPermission();
+        }
+    }
+
+    private void sendTextMessage() {
+        for(Contact contact : allContacts) {
+            String finalMessage = customMessage.getMessage().replaceAll("fname", contact.firstName)
+                    .replaceAll("lname", contact.lastName)
+                    .replaceAll("variable1", customMessage.getVariableOne())
+                    .replaceAll("variable2", customMessage.getVaribaleTwo());
+            SmsManager smsManager = SmsManager.getDefault();
+            ArrayList<String> parts = smsManager.divideMessage(finalMessage);
+            smsManager.sendMultipartTextMessage(contact.phoneNumber, null, parts, null, null);
+        }
+        showSnackBar(this, "Sent text message to " + allContacts.size() + " contacts.");
+
+    }
+
+    @Override
+    public void showSnackBar(Activity activity, String message){
+        View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
     }
 
 
