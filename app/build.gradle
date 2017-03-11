@@ -4,11 +4,11 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "android.mayassin.com.manymessage"
+        applicationId "androidapps.mayassin.com.manymessage"
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 4
-        versionName "1.0"
+        versionName "1.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

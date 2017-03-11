@@ -1,4 +1,4 @@
-package android.mayassin.com.manymessage;
+package androidapps.mayassin.com.manymessage;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
