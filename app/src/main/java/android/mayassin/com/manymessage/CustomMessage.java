@@ -1,4 +1,4 @@
-package android.mayassin.com.manymessagev2;
+package android.mayassin.com.manymessage;
 
 /**
  * Created by moham on 3/11/2017.

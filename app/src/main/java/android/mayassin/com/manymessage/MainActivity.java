@@ -1,4 +1,4 @@
-package android.mayassin.com.manymessagev2;
+package android.mayassin.com.manymessage;
 
 import android.Manifest;
 import android.app.Activity;
@@ -27,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -37,9 +36,7 @@ import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements RecipientsInterface, ComposeInterface{
 

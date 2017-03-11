@@ -1,4 +1,4 @@
-package android.mayassin.com.manymessagev2;
+package android.mayassin.com.manymessage;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
