@@ -8,4 +8,10 @@ import java.util.ArrayList;
 
 public class GroupOfContacts {
     public ArrayList<Contact> contacts = new ArrayList<Contact>();
+
+    public GroupOfContacts(ArrayList<Contact> contacts) {
+        this.contacts = contacts;
+    }
+    public GroupOfContacts() {
+    }
 }

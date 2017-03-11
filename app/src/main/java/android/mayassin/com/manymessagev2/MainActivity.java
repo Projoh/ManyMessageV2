@@ -19,11 +19,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -47,13 +48,13 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private ViewPager viewPager;
     private BottomBar bottomBar;
     private RecyclerView recyleView;
+    private SavedContactsManager sessionManager;
     private RecycleViewAdapter adapter;
     private Menu menu;
     private FloatingActionMenu addContactsMenuButton;
     private com.github.clans.fab.FloatingActionButton deleteContactsButton,selectAllContactsButton,
             selectFromContactsButton,selectFromSavedContactsButton,saveCurrentContactsButton;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,26 +86,27 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 if(allContacts.isEmpty())
                     allContacts.addAll(gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts);
                 else {
-                    ArrayList<Contact> newContactsToAdd = new ArrayList<>();
-                    newContactsToAdd = gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts;
-                    for(Contact newContact: newContactsToAdd) {
-                        boolean add = true;
-                        for(Contact currentcontact : allContacts) {
-                            if(currentcontact.firstName.equals(newContact.firstName) &&
-                                    currentcontact.lastName.equals(newContact.lastName) &&
-                                    currentcontact.phoneNumber.equals(newContact.phoneNumber)) {
-                                add = false;
-                                break;
-                            }
-                        }
-                        if(add) allContacts.add(newContact);
-                    }
+                    addNewContacts(gson.fromJson(data.getStringExtra("selected_contacts"), GroupOfContacts.class).contacts);
                 }
-                sendToRecipeintsFragment();
+                updateContactsRecylerView();
             }
         }
     }
 
+    private void addNewContacts(ArrayList<Contact> newContactsToAdd) {
+        for(Contact newContact: newContactsToAdd) {
+            boolean add = true;
+            for(Contact currentcontact : allContacts) {
+                if(currentcontact.firstName.equals(newContact.firstName) &&
+                        currentcontact.lastName.equals(newContact.lastName) &&
+                        currentcontact.phoneNumber.equals(newContact.phoneNumber)) {
+                    add = false;
+                    break;
+                }
+            }
+            if(add) allContacts.add(newContact);
+        }
+    }
 
 
     private void removeDuplicates() {
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         allContacts.addAll(hashSet);
     }
 
-    private void sendToRecipeintsFragment() {
+    private void updateContactsRecylerView() {
         Intent i = new Intent(UPDATE_CONTACTS_REQUEST);
         i.putExtra("success", true);
         LocalBroadcastManager.getInstance(MainActivity.this)
@@ -164,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
             }
             @Override
             public boolean onQueryTextChange(String newText) {
+                hideFABs();
                 Intent i = new Intent(FILTER_CONTACTS);
                 i.putExtra("success", true);
                 i.putExtra("filter_text", newText);
@@ -179,14 +182,15 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private void intialize() {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+        sessionManager = new SavedContactsManager(this);
         intializeFABs();
         intializeViewPager();
         intializeBottomBar();
-        initializeFabListeners();
+        setFABClickListeners();
 
     }
 
-    private void initializeFabListeners() {
+    private void setFABClickListeners() {
         selectFromContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,10 +202,22 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         deleteContactsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(REMOVE_CONTACTS_REQUEST);
-                i.putExtra("success", true);
-                LocalBroadcastManager.getInstance(MainActivity.this)
-                        .sendBroadcast(i);
+                MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .title("Remove Selected Contacts?")
+                        .content("You are about to remove all the selected contacts from the message recipients." +
+                                " You will have to add them back manually if you want them back.")
+                        .positiveText("REMOVE")
+                        .negativeText("NEVERMIND")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Intent i = new Intent(REMOVE_CONTACTS_REQUEST);
+                                i.putExtra("success", true);
+                                LocalBroadcastManager.getInstance(MainActivity.this)
+                                        .sendBroadcast(i);
+                            }
+                        })
+                        .show();
             }
         });
         selectAllContactsButton.setOnClickListener(new View.OnClickListener() {
@@ -211,6 +227,55 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 i.putExtra("success", true);
                 LocalBroadcastManager.getInstance(MainActivity.this)
                         .sendBroadcast(i);
+            }
+        });
+
+        saveCurrentContactsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .title("Save the current Recipients into a group?")
+                        .content("Are you sure you want to save the current contacts into a group for later use?")
+                        .positiveText("YES")
+                        .negativeText("NEVERMIND")
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                new MaterialDialog.Builder(MainActivity.this)
+                                        .title("Group name?")
+                                        .content("What do you want to name this group of Contacts?")
+                                        .inputType(InputType.TYPE_CLASS_TEXT)
+                                        .input("Group Name", "", new MaterialDialog.InputCallback() {
+                                            @Override
+                                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                                String groupName = input.toString().replace("\n", "");
+                                                sessionManager.saveGroup(groupName, new GroupOfContacts(allContacts));
+                                            }
+                                        }).show();
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        selectFromSavedContactsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] allGroups = sessionManager.getAllGroups();
+                if(allGroups.length == 0)   return;
+                new MaterialDialog.Builder(MainActivity.this)
+                        .title("Select from saved Groups")
+                        .items(allGroups)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                addNewContacts(sessionManager.getGroup(allGroups[which]));
+                                updateContactsRecylerView();
+                                dialog.dismiss();
+                            }
+                        })
+                        .autoDismiss(false)
+                        .show();
             }
         });
     }
@@ -305,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         deleteContactsButton.hide(true);
         saveCurrentContactsButton.hide(true);
         selectAllContactsButton.hide(true);
+        addContactsMenuButton.close(true);
     }
 
     @Override
