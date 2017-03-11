@@ -11,13 +11,13 @@ import java.util.ArrayList;
  * Created by moham on 3/11/2017.
  */
 
-public class SavedContactsManager {
+public class SessionManager {
     Context context;
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
 
-    public SavedContactsManager(Context context) {
+    public SessionManager(Context context) {
         this.context = context;
         pref = context.getSharedPreferences("sessionApp", Context.MODE_PRIVATE);
         editor = pref.edit();
@@ -29,10 +29,10 @@ public class SavedContactsManager {
         editor.putString(groupName, contactsJson);
         String currentGroups = pref.getString("groupNames", "");
         if(currentGroups == "") {
-            editor.putString("groupNames", groupName);
+            editor.putString("groupNames", groupName+"\n");
             editor.commit();
         } else {
-            editor.putString("groupNames", currentGroups+"\n"+groupName);
+            editor.putString("groupNames", currentGroups+groupName+"\n");
             editor.commit();
         }
     }
@@ -47,8 +47,10 @@ public class SavedContactsManager {
         return gson.fromJson(pref.getString(groupName, ""), GroupOfContacts.class).contacts;
     }
 
-    public void deleteGroups() {
-        editor.clear();
+    public void deleteGroup(String groupname) {
+        String newGroups = pref.getString("groupNames", "").replace(groupname+"\n", "");
+        editor.putString("groupNames",newGroups);
+        editor.remove(groupname);
         editor.commit();
     }
 }

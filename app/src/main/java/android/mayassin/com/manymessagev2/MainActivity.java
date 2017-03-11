@@ -23,7 +23,6 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private ViewPager viewPager;
     private BottomBar bottomBar;
     private RecyclerView recyleView;
-    private SavedContactsManager sessionManager;
+    private SessionManager sessionManager;
     private RecycleViewAdapter adapter;
     private Menu menu;
     private FloatingActionMenu addContactsMenuButton;
@@ -182,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private void intialize() {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        sessionManager = new SavedContactsManager(this);
+        sessionManager = new SessionManager(this);
         intializeFABs();
         intializeViewPager();
         intializeBottomBar();
@@ -262,22 +261,65 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
             @Override
             public void onClick(View v) {
                 final String[] allGroups = sessionManager.getAllGroups();
-                if(allGroups.length == 0)   return;
+                if(allGroups.length == 0 || allGroups[0].isEmpty()) {
+                    // Snackbar saying no saved groups, explain how to save
+                    return;
+                }
                 new MaterialDialog.Builder(MainActivity.this)
                         .title("Select from saved Groups")
                         .items(allGroups)
                         .itemsCallback(new MaterialDialog.ListCallback() {
                             @Override
                             public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                addNewContacts(sessionManager.getGroup(allGroups[which]));
-                                updateContactsRecylerView();
+                                final ArrayList<Contact> tempContacts = sessionManager.getGroup(allGroups[which]);
+                                final String groupName = allGroups[which];
                                 dialog.dismiss();
+                                new MaterialDialog.Builder(MainActivity.this)
+                                        .title(groupName)
+                                        .items(getCurrentContactNames(tempContacts))
+                                        .positiveText("OKAY")
+                                        .negativeText("NEVERMIND")
+                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                addNewContacts(tempContacts);
+                                                updateContactsRecylerView();
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                        .neutralText("DELETE")
+                                        .onNeutral(new MaterialDialog.SingleButtonCallback() {
+                                            @Override
+                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                new MaterialDialog.Builder(MainActivity.this)
+                                                        .title("DELETE GROUP " + groupName +"?")
+                                                        .content("Are you sure you want to delete the group " + groupName +", this action cannot be undone.")
+                                                        .positiveText("YES")
+                                                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                            @Override
+                                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                                sessionManager.deleteGroup(groupName);
+                                                            }
+                                                        })
+                                                        .negativeText("NEVERMIND")
+                                                        .show();
+                                                dialog.dismiss();
+                                            }
+                                        })
+                                        .autoDismiss(false)
+                                        .show();
                             }
                         })
-                        .autoDismiss(false)
                         .show();
             }
         });
+    }
+    private ArrayList<String> getCurrentContactNames(ArrayList<Contact> allContacts) {
+        ArrayList<String> currentContactNames = new ArrayList<>();
+        for(Contact contact : allContacts) {
+            currentContactNames.add(contact.firstName +" "+ contact.lastName + "("+contact.phoneNumber+")");
+        }
+        return currentContactNames;
     }
 
     private void intializeFABs() {
