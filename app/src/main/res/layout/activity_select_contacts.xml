@@ -1,27 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyler_view"
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="0dp"
+        app:title="Contact Book"
+        android:backgroundTint="@color/White"
+        android:gravity="start"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-
-    <com.github.clans.fab.FloatingActionButton
-        android:id="@+id/fab_add_selected_contacts"
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="60dp"
-        android:src="@drawable/ic_add"
-        app:fab_colorNormal="@color/Gray"
-        app:fab_colorPressed="@color/colorPrimaryDark"
-        app:fab_colorRipple="#99FFFFFF"
-        android:layout_marginRight="16dp" />
+        android:paddingLeft="16dp"
+        android:background="@color/White"
+        android:text="ALL CONTACTS"/>
 
-</FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
+            android:id="@+id/fast_scroller"
+            android:layout_width="16dp"
+            android:paddingEnd="8dp"
+            android:layout_gravity="end"
+            app:theme="@style/AlertDialog.AppCompat.Light"
+            android:layout_height="match_parent"
+            android:paddingRight="8dp" />
+
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_add_selected_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_add"
+            app:fab_colorNormal="@color/Gray"
+            app:fab_colorPressed="@color/colorPrimaryDark"
+            app:fab_colorRipple="#99FFFFFF"
+            android:layout_marginRight="16dp" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_select_all_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_check_box"
+            app:fab_colorNormal="@color/Gray"
+            app:fab_colorPressed="@color/colorPrimaryDark"
+            app:fab_colorRipple="#99FFFFFF"
+            android:layout_marginRight="78dp" />
+
+
+    </FrameLayout>
+
+
+</LinearLayout>

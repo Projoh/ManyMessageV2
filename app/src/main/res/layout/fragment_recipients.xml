@@ -10,7 +10,7 @@
         android:text="Contacts"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyler_view"
+        android:id="@+id/recyler_view_recipients"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
