@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_CONTACTS)
                 == PackageManager.PERMISSION_GRANTED) {
+            
             intialize();
         } else {
             requestContactReadPermission();
