@@ -29,6 +29,7 @@ public class RecipientsFragment extends Fragment {
     private static final String REMOVE_CONTACTS_REQUEST = "removeSelectedContacts";
     private static final String SELECT_ALL_CONTACTS = "selectAllContacts";
     private static final String FILTER_CONTACTS = "filterContacts";
+    private static final String CONTACT_AMOUNT_CHANGED = "contactAmountChanged";
     private View view;
     private BroadcastReceiver newContactsReciever, removeContactsReciever, selectAllContactsReciever, filterContactsReceiver;
     private RecipientsInterface recpInterface;
@@ -173,9 +174,18 @@ public class RecipientsFragment extends Fragment {
         selectAllContactsReciever = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Intent i = new Intent(CONTACT_AMOUNT_CHANGED);
+                i.putExtra("success", true);
                 for(Contact contact : allContacts) {
                     contact.setSelected(!selectedAllContacts);
                 }
+                if(!selectedAllContacts) {
+                    i.putExtra("amount", allContacts.size());
+                } else {
+                    i.putExtra("amount", 0);
+                }
+                LocalBroadcastManager.getInstance(getContext())
+                        .sendBroadcast(i);
                 selectedAllContacts = !selectedAllContacts;
                 adapter.notifyDataSetChanged();
             }

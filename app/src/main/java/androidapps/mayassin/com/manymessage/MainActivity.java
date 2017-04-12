@@ -3,9 +3,13 @@ package androidapps.mayassin.com.manymessage;
 import android.Manifest;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -17,6 +21,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     private static final int REQUEST_FOR_CONTACTS_FROM_CONTACT_BOOK = 1;
     private static final String REMOVE_CONTACTS_REQUEST = "removeSelectedContacts";
     private static final String SELECT_ALL_CONTACTS = "selectAllContacts";
+    private static final String CONTACT_AMOUNT_CHANGED = "contactAmountChanged";
     private static final String FILTER_CONTACTS = "filterContacts";
 
     private static final String SEND_MESSAGE = "sendMessage";
@@ -66,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
             composeSendButton,composeDeleteButton,composeSaveButton,composeCachedButton;
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private CustomMessage customMessage = new CustomMessage();
+    private BroadcastReceiver contactSelectedReciever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,6 +226,27 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         intializeBottomBar();
         setRecipFABClickListeners();
         setComposeFABClickListeners();
+        setToolBarListener();
+
+    }
+
+    private void setToolBarListener() {
+            contactSelectedReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    int amountOfContacts = intent.getIntExtra("amount", 0);
+                    if(amountOfContacts > 0) {
+                        ActionBar mActionBar = getSupportActionBar();
+                        mActionBar.setTitle(amountOfContacts+": Message Recipients");
+                        return;
+                    }
+                    getSupportActionBar().setTitle("Message Recipients");
+                }
+            };
+
+
+            LocalBroadcastManager.getInstance(this)
+                    .registerReceiver(contactSelectedReciever, new IntentFilter(CONTACT_AMOUNT_CHANGED));
 
     }
 

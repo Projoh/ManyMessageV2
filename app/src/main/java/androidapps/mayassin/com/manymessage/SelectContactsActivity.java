@@ -2,13 +2,19 @@ package androidapps.mayassin.com.manymessage;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,12 +40,14 @@ import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScrol
  */
 
 public class SelectContactsActivity extends AppCompatActivity {
+    private static final String CONTACT_AMOUNT_CHANGED_SELECT_CONTACTS = "contactAmountChangedSelectContacts";
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private ArrayList<Contact> checkedList = new ArrayList<Contact>();
     private RecyclerView recyleView;
-    private RecycleViewAdapter adapter;
+    private SelectContactsRecycleViewAdapter adapter;
     private boolean selectedAllContacts;
     private com.github.clans.fab.FloatingActionButton sendSelected,selectAll;
+    private BroadcastReceiver contactSelectedReciever;
 
 
     @Override
@@ -50,6 +58,25 @@ public class SelectContactsActivity extends AppCompatActivity {
         setUpFABs();
         setSupportActionBar(myToolbar);
         pullAllContacts();
+        setUpToolBarListener();
+    }
+
+    private void setUpToolBarListener() {
+        contactSelectedReciever = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int amountOfContacts = intent.getIntExtra("amount", 0);
+                if(amountOfContacts > 0) {
+                    getSupportActionBar().setTitle(amountOfContacts+": Selected from your contacts!");
+                    return;
+                }
+                getSupportActionBar().setTitle("Select from your Contacts!");
+            }
+        };
+
+
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(contactSelectedReciever, new IntentFilter(CONTACT_AMOUNT_CHANGED_SELECT_CONTACTS));
     }
 
     private void setUpFABs() {
@@ -117,6 +144,11 @@ public class SelectContactsActivity extends AppCompatActivity {
                 for(Contact contact : allContacts) {
                     contact.setSelected(!selectedAllContacts);
                 }
+                if(!selectedAllContacts) {
+                    getSupportActionBar().setTitle(allContacts.size()+": Selected from your contacts!");
+                } else {
+                    getSupportActionBar().setTitle("Selected from your contacts!");
+                }
                 selectedAllContacts = !selectedAllContacts;
                 adapter.notifyDataSetChanged();
             }
@@ -179,7 +211,7 @@ public class SelectContactsActivity extends AppCompatActivity {
         VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
         fastScroller.setRecyclerView(recyleView);
         recyleView.setOnScrollListener(fastScroller.getOnScrollListener());
-        adapter = new RecycleViewAdapter(getApplicationContext(), allContacts);
+        adapter = new SelectContactsRecycleViewAdapter(getApplicationContext(), allContacts);
         recyleView.setAdapter(adapter);
         recyleView.setOnTouchListener(new View.OnTouchListener() {
             @Override

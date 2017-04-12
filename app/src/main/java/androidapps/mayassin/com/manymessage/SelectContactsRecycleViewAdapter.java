@@ -24,16 +24,16 @@ import java.util.List;
  * Created by moham on 3/9/2017.
  */
 
-public class RecycleViewAdapter  extends RecyclerView.Adapter<RecycleViewAdapter.CustomViewHolder> implements Filterable{
+public class SelectContactsRecycleViewAdapter extends RecyclerView.Adapter<SelectContactsRecycleViewAdapter.CustomViewHolder> implements Filterable{
 
-    private static final String CONTACT_AMOUNT_CHANGED = "contactAmountChanged";
+    private static final String CONTACT_AMOUNT_CHANGED_SELECT_CONTACTS = "contactAmountChangedSelectContacts";
     private ArrayList<Contact> allContacts = new ArrayList<Contact>();
     private ArrayList<Contact> allContactsFilter = new ArrayList<Contact>();
     private Context mContext;
     private int amountSelected;
     private TextSearchFilter mTextFilter = new TextSearchFilter();
 
-    public RecycleViewAdapter(Context context, ArrayList<Contact> allContacts) {
+    public SelectContactsRecycleViewAdapter(Context context, ArrayList<Contact> allContacts) {
         mContext = context;
         this.allContacts = allContacts;
         this.allContactsFilter = allContacts;
@@ -50,8 +50,7 @@ public class RecycleViewAdapter  extends RecyclerView.Adapter<RecycleViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(RecycleViewAdapter.CustomViewHolder holder, int position) {
-        if(position == 0)   amountSelected = 0;
+    public void onBindViewHolder(SelectContactsRecycleViewAdapter.CustomViewHolder holder, int position) {
         Contact contact = allContacts.get(position);
         char firstLetter = contact.firstName.charAt(0);
         ColorGenerator generator = ColorGenerator.MATERIAL;
@@ -75,9 +74,10 @@ public class RecycleViewAdapter  extends RecyclerView.Adapter<RecycleViewAdapter
                     .buildRound(" ", Color.GRAY);
             holder.circularBackground.setImageDrawable(drawable2);
             holder.listLayout.setBackgroundColor(Color.LTGRAY);
-            amountSelected++;
         }
     }
+
+
 
     @Override
     public int getItemCount() {
@@ -109,13 +109,10 @@ public class RecycleViewAdapter  extends RecyclerView.Adapter<RecycleViewAdapter
             Contact contact = allContacts.get(getAdapterPosition());
             if(contact.isSelected()) {
                 deselectContact(contact);
-                amountSelected--;
             } else {
                 selectContact(contact);
-                amountSelected++;
             }
             sendAmountSelected();
-
         }
 
         private void selectContact(Contact contact) {
@@ -147,17 +144,17 @@ public class RecycleViewAdapter  extends RecyclerView.Adapter<RecycleViewAdapter
     }
 
     private void sendAmountSelected() {
-        amountSelected = 0;
-        for(Contact contact : allContacts) {
-            if(contact.isSelected()) {
-                amountSelected++;
+            amountSelected = 0;
+            for(Contact contact : allContacts) {
+                if(contact.isSelected()) {
+                    amountSelected++;
+                }
             }
-        }
-        Intent i = new Intent(CONTACT_AMOUNT_CHANGED);
-        i.putExtra("success", true);
-        i.putExtra("amount", amountSelected);
-        LocalBroadcastManager.getInstance(mContext)
-                .sendBroadcast(i);
+            Intent i = new Intent(CONTACT_AMOUNT_CHANGED_SELECT_CONTACTS);
+            i.putExtra("success", true);
+            i.putExtra("amount", amountSelected);
+            LocalBroadcastManager.getInstance(mContext)
+                    .sendBroadcast(i);
     }
 
     @Override
