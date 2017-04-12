@@ -236,7 +236,7 @@ public class ComposeFragment extends Fragment {
         messageDialog = new MaterialDialog.Builder(getContext())
                 .title("Type message!")
                 .content("Type your message(fname and lname are resevered for contact first and last names respectively)")
-                .inputType(InputType.TYPE_CLASS_TEXT)
+                .inputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE)
                 .input("Hey fname, long time no talk, where have you been? Hanging out with the lname family?", "", new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(MaterialDialog dialog, CharSequence input) {

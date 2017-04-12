@@ -122,6 +122,7 @@ public class RecipientsFragment extends Fragment {
                 allContacts = recpInterface.getSelectedContacts();
                 adapter = new RecycleViewAdapter(getContext(), allContacts);
                 recyleView.setAdapter(adapter);
+                selectedAllContacts = false;
                 checkFABsAndShow();
             }
         };
@@ -137,6 +138,7 @@ public class RecipientsFragment extends Fragment {
                 }
                 allContacts.removeAll(contactsToRemove);
                 checkFABsAndShow();
+                selectedAllContacts = false;
                 adapter.notifyDataSetChanged();
             }
         };
@@ -156,7 +158,7 @@ public class RecipientsFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                //
                 adapter.getFilter().filter(intent.getStringExtra("filter_text").replace("\n", ""));
-
+                selectedAllContacts = false;
             }
         };
 

@@ -190,11 +190,10 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
         inflater.inflate(R.menu.options_menu, menu);
         MenuItem searchItem = menu.findItem(R.id.search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                showFABs();return false;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
