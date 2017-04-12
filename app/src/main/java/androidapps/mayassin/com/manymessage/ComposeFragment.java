@@ -38,8 +38,41 @@ public class ComposeFragment extends Fragment {
     private BroadcastReceiver sendMessageReciever, deleteMessageReciever, cachedMessageReciever, saveMessageReciever;
     private SessionManager session;
 
-    private static String initialText = "Hey fname, I'm trying to contact the lname family. We are having a new event that involves variable1 and is sponsored by variable2. What do you think?";
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(compInterface!=null) {
+            customMessage = compInterface.getCustomMessage();
+            setMessageText(customMessage.getMessage());
+            setVariableOneText(customMessage.getVariableOne());
+            setVariableTwoText(customMessage.getVaribaleTwo());
+        }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(compInterface!= null) {
+            customMessage = compInterface.getCustomMessage();
+            setMessageText(customMessage.getMessage());
+            setVariableOneText(customMessage.getVariableOne());
+            setVariableTwoText(customMessage.getVaribaleTwo());
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        compInterface.setCustomMessage(customMessage);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(customMessage != null) {
+            compInterface.setCustomMessage(customMessage);
+        }
+    }
 
     @Nullable
     @Override
@@ -152,9 +185,10 @@ public class ComposeFragment extends Fragment {
     }
 
     private void resetComposeData() {
-        setMessageText(initialText);
-        setVariableOneText("Major Sports Academy");
-        setVariableTwoText("University of Popular Football team");
+        customMessage = new CustomMessage();
+        setMessageText(customMessage.getMessage());
+        setVariableOneText(customMessage.getVariableOne());
+        setVariableTwoText(customMessage.getVaribaleTwo());
     }
 
     private void intializeRecievers() {

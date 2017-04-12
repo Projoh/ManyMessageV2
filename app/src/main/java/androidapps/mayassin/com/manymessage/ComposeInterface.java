@@ -12,4 +12,6 @@ public interface ComposeInterface {
     void hideComposeFAB();
     void sendDataFromCompose(CustomMessage customMessage);
     void showSnackBar(Activity activity, String text);
+    CustomMessage getCustomMessage();
+    void setCustomMessage(CustomMessage customMessage);
 }

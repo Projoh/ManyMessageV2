@@ -114,6 +114,34 @@ public class RecipientsFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(recpInterface.getSelectedContacts() != null) {
+            allContacts = recpInterface.getSelectedContacts();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        allContacts = recpInterface.getSelectedContacts();
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        recpInterface.setSelectedContacts(allContacts);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        recpInterface.setSelectedContacts(allContacts);
+    }
+
     private void setUpRecievers() {
         newContactsReciever = new BroadcastReceiver() {
             @Override

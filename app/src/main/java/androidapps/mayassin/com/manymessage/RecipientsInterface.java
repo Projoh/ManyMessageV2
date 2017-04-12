@@ -10,4 +10,5 @@ public interface RecipientsInterface {
     void showFABs();
     void hideFABs();
     ArrayList<Contact> getSelectedContacts();
+    void setSelectedContacts(ArrayList<Contact> selectedContacts);
 }

@@ -506,6 +506,11 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     }
 
     @Override
+    public void setSelectedContacts(ArrayList<Contact> selectedContacts) {
+        allContacts = selectedContacts;
+    }
+
+    @Override
     public void showComposeFAB() {
         composeDeleteButton.show(true);
         composeSaveButton.show(true);
@@ -587,6 +592,16 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
     public void showSnackBar(Activity activity, String message){
         View rootView = activity.getWindow().getDecorView().findViewById(android.R.id.content);
         Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public CustomMessage getCustomMessage() {
+        return customMessage;
+    }
+
+    @Override
+    public void setCustomMessage(CustomMessage customMessage) {
+    this.customMessage = customMessage;
     }
 
 
