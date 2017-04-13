@@ -15,6 +15,7 @@ import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -66,10 +67,13 @@ public class SelectContactsActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int amountOfContacts = intent.getIntExtra("amount", 0);
+                ActionBar mActionBar = getSupportActionBar();
                 if(amountOfContacts > 0) {
                     getSupportActionBar().setTitle(amountOfContacts+": Selected from your contacts!");
+                    mActionBar.setBackgroundDrawable(new ColorDrawable(Color.LTGRAY));
                     return;
                 }
+                mActionBar.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
                 getSupportActionBar().setTitle("Select from your Contacts!");
             }
         };

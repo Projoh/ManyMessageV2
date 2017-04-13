@@ -168,6 +168,11 @@ public class RecipientsFragment extends Fragment {
                 allContacts.removeAll(contactsToRemove);
                 checkFABsAndShow();
                 selectedAllContacts = false;
+                Intent i = new Intent(CONTACT_AMOUNT_CHANGED);
+                i.putExtra("success", true);
+                i.putExtra("amount", 0);
+                LocalBroadcastManager.getInstance(getContext())
+                        .sendBroadcast(i);
                 adapter.notifyDataSetChanged();
             }
         };

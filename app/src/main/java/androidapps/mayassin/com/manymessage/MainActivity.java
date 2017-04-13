@@ -235,12 +235,14 @@ public class MainActivity extends AppCompatActivity implements RecipientsInterfa
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     int amountOfContacts = intent.getIntExtra("amount", 0);
+                    ActionBar mActionBar = getSupportActionBar();
                     if(amountOfContacts > 0) {
-                        ActionBar mActionBar = getSupportActionBar();
                         mActionBar.setTitle(amountOfContacts+": Message Recipients");
+                        mActionBar.setBackgroundDrawable(new ColorDrawable(Color.LTGRAY));
                         return;
                     }
                     getSupportActionBar().setTitle("Message Recipients");
+                    mActionBar.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
                 }
             };
 

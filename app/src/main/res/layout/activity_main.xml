@@ -14,10 +14,9 @@
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/White"
         android:elevation="0dp"
         app:title="ManyMessage"
-        android:backgroundTint="@color/White"
         android:gravity="start"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
