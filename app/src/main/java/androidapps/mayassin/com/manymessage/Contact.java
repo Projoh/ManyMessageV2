@@ -18,8 +18,8 @@ public class Contact {
 
     public Contact(String name, String phone) {
         if(name.split("\\w+").length>1){
-            lastName = name.substring(name.lastIndexOf(" ")+1);
-            firstName = name.substring(0, name.lastIndexOf(' '));
+            lastName = name.substring(name.lastIndexOf(" ") > -1 ? name.lastIndexOf(" ")+1 : name.length() - 1);
+            firstName = name.substring(0, name.lastIndexOf(' ') > -1 ? name.lastIndexOf(' ')  : name.length() - 1);
         }
         else{
             firstName = name;

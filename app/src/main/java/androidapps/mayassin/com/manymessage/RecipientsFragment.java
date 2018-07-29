@@ -18,7 +18,6 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 /**
  * Created by moham on 3/9/2017.
@@ -37,7 +36,7 @@ public class RecipientsFragment extends Fragment {
     private RecyclerView recyleView;
     private RecycleViewAdapter adapter;
     private boolean selectedAllContacts, fabsShowing = true;
-    private VerticalRecyclerViewFastScroller fastScroller;
+//    private VerticalRecyclerViewFastScroller fastScroller;
 
 
 
@@ -66,9 +65,9 @@ public class RecipientsFragment extends Fragment {
     private void setUpRecylerView() {
         recyleView = (RecyclerView) view.findViewById(R.id.recyler_view_recipients);
         recyleView.setLayoutManager(new LinearLayoutManager(getContext()));
-        fastScroller = (VerticalRecyclerViewFastScroller) view.findViewById(R.id.fast_scroller);
-        fastScroller.setRecyclerView(recyleView);
-        recyleView.setOnScrollListener(fastScroller.getOnScrollListener());
+//        fastScroller = (VerticalRecyclerViewFastScroller) view.findViewById(R.id.fast_scroller);
+//        fastScroller.setRecyclerView(recyleView);
+//        recyleView.setOnScrollListener(fastScroller.getOnScrollListener());
         adapter = new RecycleViewAdapter(getContext(), allContacts);
         recyleView.setAdapter(adapter);
         recyleView.setOnTouchListener(new View.OnTouchListener() {
@@ -108,10 +107,10 @@ public class RecipientsFragment extends Fragment {
     private void checkFABsAndShow() {
         if(!allContacts.isEmpty()) {
             recpInterface.showFABs();
-            fastScroller.setVisibility(View.VISIBLE);
+//            fastScroller.setVisibility(View.VISIBLE);
         } else {
             recpInterface.hideFABs();
-            fastScroller.setVisibility(View.GONE);
+//            fastScroller.setVisibility(View.GONE);
         }
     }
 

@@ -34,7 +34,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 /**
  * Created by moham on 3/9/2017.
@@ -212,9 +211,9 @@ public class SelectContactsActivity extends AppCompatActivity {
     private void setUpRecyleViewer() {
         recyleView = (RecyclerView) findViewById(R.id.recyler_view);
         recyleView.setLayoutManager(new LinearLayoutManager(this));
-        VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
-        fastScroller.setRecyclerView(recyleView);
-        recyleView.setOnScrollListener(fastScroller.getOnScrollListener());
+//        VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
+//        fastScroller.setRecyclerView(recyleView);
+//        recyleView.setOnScrollListener(fastScroller.getOnScrollListener());
         adapter = new SelectContactsRecycleViewAdapter(getApplicationContext(), allContacts);
         recyleView.setAdapter(adapter);
         recyleView.setOnTouchListener(new View.OnTouchListener() {

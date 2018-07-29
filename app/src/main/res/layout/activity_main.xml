@@ -5,8 +5,7 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="android.mayassin.com.manymessage.androidapps.mayassin.com.manymessage.MainActivity">
+    android:layout_height="match_parent">
 
 
 

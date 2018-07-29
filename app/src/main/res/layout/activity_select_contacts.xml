@@ -32,14 +32,6 @@
             android:id="@+id/recyler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
-            android:id="@+id/fast_scroller"
-            android:layout_width="16dp"
-            android:paddingEnd="8dp"
-            android:layout_gravity="end"
-            app:theme="@style/AlertDialog.AppCompat.Light"
-            android:layout_height="match_parent"
-            android:paddingRight="8dp" />
 
 
         <com.github.clans.fab.FloatingActionButton
